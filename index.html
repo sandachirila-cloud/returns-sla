@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SLA Return Processing Tool — v3.6+ Unpacking</title>
+  <style>
+    :root{
+      --pink:#ff4da6;
+      --pink-700:#d93f8e;
+      --pink-100:#ffe3f2;
+      --bg:#fffafc;
+      --ink:#222;
+      --muted:#666;
+      --card:#ffffff;
+      --ok:#22a06b;
+      --warn:#e6a100;
+      --bad:#d43939;
+      --shadow: 0 8px 24px rgba(217,63,142,0.18);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
+    h1,h2,h3{margin:0 0 .6rem}
+    h1{font-size:1.8rem}
+    h2{font-size:1.2rem;color:var(--muted);font-weight:600}
+    .app{max-width:1100px;margin:24px auto;padding:14px}
+    .header{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--pink),#ff9ecb);box-shadow:var(--shadow)}
+    .hello{font-weight:700;color:var(--pink-700)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{background:var(--card);border:1px solid #f7d1e6;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:.4rem 0}
+    label{font-size:.9rem;color:var(--muted)}
+    input,select,button,textarea{
+      width:100%;padding:10px;border-radius:12px;border:1px solid #f1b9d7;background:#fff;font-size:.95rem;
+    }
+    input:focus,select:focus,textarea:focus{outline:2px solid var(--pink-700);border-color:transparent}
+    button{background:var(--pink);border:none;color:white;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+    button.secondary{background:#fff;color:var(--pink-700);border:1px solid #ffc3e0}
+    .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 10px;font-size:.85rem}
+    .ok{background:#e9f8f2;color:var(--ok);border:1px solid #c6efdf}
+    .warn{background:#fff6e0;color:var(--warn);border:1px solid #ffe3a6}
+    .bad{background:#ffe9e9;color:var(--bad);border:1px solid #ffcccc}
+    .footer{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+    .muted{color:var(--muted);font-size:.9rem}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem}
+    .hint{font-size:.8rem;color:var(--muted)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .kpi{background:var(--pink-100);border:1px solid #ffc3e0;border-radius:16px;padding:12px;text-align:center}
+    .kpi .big{font-weight:800;font-size:1.4rem;color:var(--pink-700)}
+    .table{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:6px}
+    .table th{font-size:.8rem;color:#8a4d6b;text-align:left;padding:4px 8px}
+    .table td{background:#fff;border:1px solid #ffd0e7;border-left:none;border-right:none;padding:10px 8px;border-radius:10px}
+    .badge{padding:.2rem .5rem;border-radius:999px;border:1px solid #ffd0e7;background:#fff;color:var(--pink-700);font-size:.8rem}
+    .sr{position:absolute;left:-9999px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>SLA Return Processing Tool — <span class="mono">v3.6+ Unpacking</span></h1>
+          <div class="muted">Pink theme • Single file • Works offline</div>
+        </div>
+      </div>
+      <div class="hello" id="hello">Hello!</div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="section-title">
+          <h2>1) Shift & Controls</h2>
+          <span class="badge" id="statusBadge">Ready</span>
+        </div>
+        <div class="row">
+          <div>
+            <label for="shift">Shift length (hours)</label>
+            <select id="shift">
+              <option value="6">6</option>
+              <option value="9" selected>9</option>
+              <option value="11">11</option>
+            </select>
+          </div>
+          <div>
+            <label for="date">Date</label>
+            <input type="date" id="date"/>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="startTime">Shift start time</label>
+            <input type="time" id="startTime" value="08:00">
+          </div>
+          <div>
+            <label for="totalHeadcount">Total headcount available (optional)</label>
+            <input type="number" id="totalHeadcount" min="0" placeholder="e.g., 12">
+          </div>
+        </div>
+        <div class="footer">
+          <button id="resetBtn" class="secondary">Reset</button>
+          <button id="exportBtn">Export summary CSV</button>
+        </div>
+        <p class="hint">Overtime option removed by request. Name input pops up on load and is saved locally.</p>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <h2>2) Returns Processing</h2>
+          <span class="pill ok" id="returnsHealth"><strong>OK</strong> • On track</span>
+        </div>
+        <div class="row">
+          <div>
+            <label for="returnsBacklog">Returns backlog (units)</label>
+            <input type="number" id="returnsBacklog" min="0" value="0">
+          </div>
+          <div>
+            <label for="returnsToday">Expected returns today (units)</label>
+            <input type="number" id="returnsToday" min="0" value="0">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="returnsRate">Returns per person per hour</label>
+            <input type="number" id="returnsRate" min="1" value="20">
+          </div>
+          <div>
+            <label for="returnsHeadcount">Headcount dedicated to returns</label>
+            <input type="number" id="returnsHeadcount" min="0" value="0">
+          </div>
+        </div>
+        <div class="summary">
+          <div class="kpi">
+            <div class="big" id="returnsHoursReq">0 h</div>
+            <div class="muted">Total hours required</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="returnsHCNeeded">0</div>
+            <div class="muted">Headcount needed (this shift)</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="returnsETA">—</div>
+            <div class="muted">ETA if staffed as above</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <h2>3) Unpacking</h2>
+          <span class="pill ok" id="unpackHealth"><strong>OK</strong> • On track</span>
+        </div>
+        <div class="row">
+          <div>
+            <label for="parcelsToUnpack">Parcels to unpack (units)</label>
+            <input type="number" id="parcelsToUnpack" min="0" value="0">
+          </div>
+          <div>
+            <label for="unpackRate">Parcels per person per hour</label>
+            <input type="number" id="unpackRate" min="1" value="70">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="unpackHeadcount">Headcount dedicated to unpacking</label>
+            <input type="number" id="unpackHeadcount" min="0" value="0">
+          </div>
+          <div>
+            <label for="pallets">Pallets (optional)</label>
+            <input type="number" id="pallets" min="0" value="0">
+          </div>
+        </div>
+        <div class="summary">
+          <div class="kpi">
+            <div class="big" id="unpackHoursReq">0 h</div>
+            <div class="muted">Total hours required</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="unpackHCNeeded">0</div>
+            <div class="muted">Headcount needed (this shift)</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="unpackETA">—</div>
+            <div class="muted">ETA if staffed as above</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <h2>4) Suggested Allocation</h2>
+          <span class="badge">Auto-calc</span>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Hours Required</th>
+              <th>HC Needed</th>
+              <th>HC Assigned</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="allocRows"></tbody>
+        </table>
+        <div class="footer">
+          <button class="secondary" id="autoSplitBtn">Auto-split headcount</button>
+          <button id="copySummaryBtn">Copy plain-text summary</button>
+        </div>
+        <p class="hint">Auto-split divides the <strong>Total headcount</strong> between Returns and Unpacking to hit both within the chosen shift length (when possible).</p>
+      </section>
+    </div>
+  </div>
+
+  <dialog id="nameDialog">
+    <form method="dialog" style="padding:20px;min-width:320px;display:grid;gap:10px">
+      <h2 style="margin:0 0 6px;color:var(--pink-700)">Who's using this?</h2>
+      <label for="userName">Your name (shown in header)</label>
+      <input id="userName" placeholder="e.g., Sanda" autocomplete="name"/>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button class="secondary" value="cancel">Cancel</button>
+        <button value="ok">Save</button>
+      </div>
+      <p class="hint" style="margin:6px 0 0">Name is stored in your browser (local only).</p>
+    </form>
+  </dialog>
+
+  <script>
+    const $ = (id)=>document.getElementById(id);
+
+    // Init
+    (function init(){
+      const today = new Date().toISOString().slice(0,10);
+      $('date').value = today;
+      // greet
+      const saved = localStorage.getItem('sla_user');
+      if(saved){
+        $('hello').textContent = 'Hello, ' + saved + '!';
+      }else{
+        openNameDialog();
+      }
+      // listeners
+      document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input', recalc));
+      $('autoSplitBtn').addEventListener('click', autoSplit);
+      $('resetBtn').addEventListener('click', resetAll);
+      $('exportBtn').addEventListener('click', exportCSV);
+      $('copySummaryBtn').addEventListener('click', copySummary);
+      recalc();
+    })();
+
+    function openNameDialog(){
+      const dlg = $('nameDialog');
+      const nameInput = $('userName');
+      const saved = localStorage.getItem('sla_user') || '';
+      nameInput.value = saved;
+      dlg.showModal();
+      dlg.addEventListener('close', ()=>{
+        if(dlg.returnValue === 'ok' && nameInput.value.trim()){
+          localStorage.setItem('sla_user', nameInput.value.trim());
+          $('hello').textContent = 'Hello, ' + nameInput.value.trim() + '!';
+        }
+      }, {once:true});
+    }
+
+    function hoursRequired(units, rate){
+      units = Number(units)||0;
+      rate = Math.max(1, Number(rate)||0);
+      return units / rate;
+    }
+
+    function etaText(startTime, hours, headcount){
+      if(!headcount || headcount<=0){ return '—'; }
+      const totalHours = hours / headcount;
+      const [HH,MM] = (startTime||'08:00').split(':').map(Number);
+      const start = new Date();
+      start.setHours(HH); start.setMinutes(MM||0); start.setSeconds(0);
+      const end = new Date(start.getTime() + totalHours*3600*1000);
+      return end.toTimeString().slice(0,5);
+    }
+
+    function kpiHealth(hcAssigned, hcNeeded){
+      if(hcAssigned>=hcNeeded){ return ['OK','ok','On track']; }
+      if(hcAssigned>=Math.max(1, hcNeeded-1)){ return ['WARN','warn','Slight shortfall']; }
+      return ['RISK','bad','Under-staffed'];
+    }
+
+    function recalc(){
+      const shiftH = Number($('shift').value)||9;
+      const startTime = $('startTime').value||'08:00';
+
+      // Returns
+      const retUnits = (Number($('returnsBacklog').value)||0) + (Number($('returnsToday').value)||0);
+      const retRate = Math.max(1, Number($('returnsRate').value)||20);
+      const retHoursReq = hoursRequired(retUnits, retRate);
+      $('returnsHoursReq').textContent = retHoursReq.toFixed(2)+' h';
+      const retHCneeded = Math.ceil(retHoursReq / shiftH);
+      $('returnsHCNeeded').textContent = retHCneeded;
+      const retHCAssigned = Math.max(0, Number($('returnsHeadcount').value)||0);
+      $('returnsETA').textContent = etaText(startTime, retHoursReq, retHCAssigned);
+      const [rk, rcls, rtxt] = kpiHealth(retHCAssigned, retHCneeded);
+      const retHealth = $('returnsHealth'); retHealth.className='pill '+rcls; retHealth.innerHTML = '<strong>'+rk+'</strong> • '+rtxt;
+
+      // Unpack
+      const upUnits = Number($('parcelsToUnpack').value)||0;
+      const upRate = Math.max(1, Number($('unpackRate').value)||70);
+      const upHoursReq = hoursRequired(upUnits, upRate);
+      $('unpackHoursReq').textContent = upHoursReq.toFixed(2)+' h';
+      const upHCneeded = Math.ceil(upHoursReq / shiftH);
+      $('unpackHCNeeded').textContent = upHCneeded;
+      const upHCAssigned = Math.max(0, Number($('unpackHeadcount').value)||0);
+      $('unpackETA').textContent = etaText(startTime, upHoursReq, upHCAssigned);
+      const [uk, ucls, utxt] = kpiHealth(upHCAssigned, upHCneeded);
+      const upHealth = $('unpackHealth'); upHealth.className='pill '+ucls; upHealth.innerHTML = '<strong>'+uk+'</strong> • '+utxt;
+
+      // Allocation rows
+      const tbody = $('allocRows');
+      tbody.innerHTML = '';
+      tbody.appendChild(row('Returns', retHoursReq, retHCneeded, retHCAssigned));
+      tbody.appendChild(row('Unpacking', upHoursReq, upHCneeded, upHCAssigned));
+
+      // Top badge - overall
+      const totalNeeded = retHCneeded + upHCneeded;
+      const totalAssigned = retHCAssigned + upHCAssigned;
+      let badge = $('statusBadge');
+      if(totalAssigned>=totalNeeded){ badge.textContent = 'On track'; badge.style.background= '#e9f8f2'; badge.style.color= 'var(--ok)'; badge.style.border='1px solid #c6efdf'; }
+      else if(totalAssigned>=Math.max(1, totalNeeded-1)){ badge.textContent = 'Slight shortfall'; badge.style.background= '#fff6e0'; badge.style.color= 'var(--warn)'; badge.style.border='1px solid #ffe3a6'; }
+      else { badge.textContent = 'Under-staffed'; badge.style.background= '#ffe9e9'; badge.style.color= 'var(--bad)'; badge.style.border='1px solid #ffcccc'; }
+    }
+
+    function row(area, hrs, need, have){
+      const tr = document.createElement('tr');
+      const status = document.createElement('span');
+      const [k, cls, txt] = kpiHealth(have, need);
+      status.className = 'pill ' + cls;
+      status.innerHTML = '<strong>'+k+'</strong> • '+txt;
+      tr.innerHTML = `
+        <td><strong>${area}</strong></td>
+        <td>${hrs.toFixed(2)} h</td>
+        <td>${need}</td>
+        <td>${have}</td>
+        <td></td>
+      `;
+      tr.children[4].appendChild(status);
+      return tr;
+    }
+
+    function autoSplit(){
+      const total = Math.max(0, Number($('totalHeadcount').value)||0);
+      if(!total){ alert('Enter Total headcount available first.'); return; }
+
+      const shiftH = Number($('shift').value)||9;
+      const retUnits = (Number($('returnsBacklog').value)||0) + (Number($('returnsToday').value)||0);
+      const retRate = Math.max(1, Number($('returnsRate').value)||20);
+      const retHrs = hoursRequired(retUnits, retRate);
+      const upUnits = Number($('parcelsToUnpack').value)||0;
+      const upRate = Math.max(1, Number($('unpackRate').value)||70);
+      const upHrs = hoursRequired(upUnits, upRate);
+
+      const retNeed = Math.ceil(retHrs/shiftH);
+      const upNeed = Math.ceil(upHrs/shiftH);
+      const totalNeed = retNeed + upNeed;
+
+      let retAssign=0, upAssign=0;
+      if(total>=totalNeed){
+        // Give exactly what's needed
+        retAssign = retNeed; upAssign = upNeed;
+        const spare = total - totalNeed;
+        // Distribute spare proportionally by hours
+        const retShare = retHrs/(retHrs+upHrs || 1);
+        retAssign += Math.floor(spare*retShare);
+        upAssign = total - retAssign;
+      }else{
+        // Not enough; split proportionally by hours
+        const sum = retHrs + upHrs;
+        retAssign = Math.max(0, Math.floor(total * (retHrs/(sum||1))));
+        upAssign = total - retAssign;
+        // Ensure at least 1 where there is work
+        if(retHrs>0 && retAssign===0){ retAssign=1; upAssign=Math.max(0,total-1); }
+        if(upHrs>0 && upAssign===0){ upAssign=1; retAssign=Math.max(0,total-1); }
+      }
+      $('returnsHeadcount').value = retAssign;
+      $('unpackHeadcount').value = upAssign;
+      recalc();
+    }
+
+    function resetAll(){
+      document.querySelectorAll('input').forEach(el=>{
+        if(el.type==='date'){ el.value = new Date().toISOString().slice(0,10); return; }
+        if(el.type==='time'){ el.value = '08:00'; return; }
+        el.value = (el.id==='returnsRate')?20:(el.id==='unpackRate')?70:0;
+      });
+      $('shift').value = '9';
+      recalc();
+    }
+
+    function exportCSV(){
+      const data = collectSummary();
+      const csv = toCSV(data.headers, data.rows);
+      download('sla_summary_'+ new Date().toISOString().slice(0,10) +'.csv', csv, 'text/csv');
+    }
+
+    function copySummary(){
+      const d = collectSummary();
+      const lines = [d.headers.join('\t')].concat(d.rows.map(r=>r.join('\t')));
+      navigator.clipboard.writeText(lines.join('\n')).then(()=>{
+        alert('Summary copied to clipboard.');
+      });
+    }
+
+    function collectSummary(){
+      const shift = Number($('shift').value)||9;
+      const start = $('startTime').value||'08:00';
+      const name = localStorage.getItem('sla_user')||'';
+      const retUnits = (Number($('returnsBacklog').value)||0)+(Number($('returnsToday').value)||0);
+      const retRate = Number($('returnsRate').value)||20;
+      const retHrs = (retUnits/Math.max(1,retRate));
+      const retNeed = Math.ceil(retHrs/shift);
+      const retHave = Number($('returnsHeadcount').value)||0;
+      const retEta = etaText(start, retHrs, retHave);
+      const upUnits = Number($('parcelsToUnpack').value)||0;
+      const upRate = Number($('unpackRate').value)||70;
+      const upHrs = (upUnits/Math.max(1,upRate));
+      const upNeed = Math.ceil(upHrs/shift);
+      const upHave = Number($('unpackHeadcount').value)||0;
+      const upEta = etaText(start, upHrs, upHave);
+
+      return {
+        headers: ['Date','User','Shift(h)','Start','Area','Units','Rate','HoursReq','HC Needed','HC Assigned','ETA'],
+        rows:[
+          [$('date').value,name,shift,start,'Returns',retUnits,retRate,retHrs.toFixed(2),retNeed,retHave,retEta],
+          [$('date').value,name,shift,start,'Unpacking',upUnits,upRate,upHrs.toFixed(2),upNeed,upHave,upEta]
+        ]
+      };
+    }
+
+    function toCSV(headers, rows){
+      const esc = v => ('"'+String(v).replace(/"/g,'""')+'"');
+      return [headers.map(esc).join(','), ...rows.map(r=>r.map(esc).join(','))].join('\n');
+    }
+
+    function download(filename, content, mime){
+      const blob = new Blob([content], {type: mime||'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+    }
+
+    // Keyboard shortcut: press N to set/change name
+    document.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase()==='n' && !e.metaKey && !e.ctrlKey){
+        openNameDialog();
+      }
+    });
+  </script>
+</body>
+</html>
